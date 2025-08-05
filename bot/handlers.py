@@ -1,11 +1,17 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import CommandHandler, CallbackQueryHandler, ContextTypes, MessageHandler, filters
+from telegram.ext import (
+    CommandHandler, CallbackQueryHandler, ContextTypes, MessageHandler, filters
+)
 from bot.button_handlers import *
 from core.form_service import get_form_message
 
 START_TEXT = "Xin chào! Cảm ơn bạn đã kết nối cùng chúng tôi.\nNếu bạn đã biết đến bot zaloOA này chứng tỏ bạn có tìm hiểu về BCP, mạn phép cho mình hỏi là bạn đã tạo tài khoản BCP chưa?"
 
 async def start_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if context.user_data.get("started"):
+        await update.message.reply_text("Bạn đã bắt đầu rồi. Gõ /reset nếu muốn bắt đầu lại.")
+        return
+    context.user_data["started"] = True
     keyboard = [
         [InlineKeyboardButton("Tạo rồi", callback_data="yesoption1")],
         [InlineKeyboardButton("Chưa tạo", callback_data="nooption1")]
@@ -24,7 +30,13 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     elif action == 'nooption1': 
         await handle_no(query)
 
+async def reset_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data.clear()  # Xóa toàn bộ dữ liệu user
+    await update.message.reply_text("Đã reset trạng thái. Gõ /start để bắt đầu lại.")
+
 def register_handlers(dp):
+    dp.add_handler(CommandHandler("reset", reset_handler))
     dp.add_handler(CommandHandler("start", start_message))
     dp.add_handler(CallbackQueryHandler(button_handler))
-    # dp.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, start_message))
+    dp.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, start_message))
+
