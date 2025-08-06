@@ -1,5 +1,5 @@
 from telegram.ext import ApplicationBuilder
-from core.config import BOT_TOKEN
+from config import BOT_TOKEN
 from bot.handlers import register_handlers
 
 def main():
