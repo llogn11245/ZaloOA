@@ -26,9 +26,10 @@ async def handle_update(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Send response using adapter
     await telegram_adapter.send_response(response, update)
 
-def register_handlers(dp):
+def register_handlers(application):
+    """Register handlers with the application"""
     # Single handler for telegram only
     # For other platforms, create their own adapters and handlers
-    dp.add_handler(CommandHandler("start", handle_update))
-    dp.add_handler(CallbackQueryHandler(handle_update))
-    dp.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_update))
+    application.add_handler(CommandHandler("start", handle_update))
+    application.add_handler(CallbackQueryHandler(handle_update))
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_update))
