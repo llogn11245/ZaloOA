@@ -29,8 +29,8 @@ class TelegramAdapter(PlatformAdapter):
                 reply_markup=response.keyboard_markup
             )
         elif response.action_type == "edit":
-            await update.callback_query.send_message(
-                response.text,
+            await update.callback_query.edit_message_text(
+                text=response.text,
                 reply_markup=response.keyboard_markup
             )
             await update.callback_query.answer()
