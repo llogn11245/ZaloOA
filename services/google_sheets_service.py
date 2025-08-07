@@ -62,6 +62,14 @@ class GoogleSheetsService:
         except Exception as e:
             print(f"❌ Error getting user {user_id}: {e}")
             return None
+        
+    def get_all_users(self) -> List[Dict]:
+        """Get all users from sheet"""
+        try:
+            return self.worksheet.get_all_records()
+        except Exception as e:
+            print(f"❌ Error getting all users: {e}")
+            return []
     
     def add_user(self, user_id: str, username: str, form_status: str = 'pending') -> bool:
         """Add new user to sheet"""

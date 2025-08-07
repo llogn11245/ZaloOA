@@ -72,21 +72,6 @@ def mark_follow_up_sent(user_id):
     """Mark that follow-up message was sent"""
     sheets = get_sheets_service()
     return sheets.mark_follow_up_sent(user_id)
-
-def is_same_session_interaction(user_id, time_threshold_seconds=SESSION_THRESHOLD_SECONDS):
-    """
-    Check if current interaction is in the same session as last_follow_up_sent
-    Returns True if last follow-up was sent within time_threshold_seconds
-    """
-    user = get_user(user_id)
-    if not user or not user.get('last_follow_up_sent'):
-        return False
-    try:
-        last_follow_up = datetime.fromisoformat(user['last_follow_up_sent'].replace('Z', '+00:00'))
-        now = datetime.now(timezone.utc)
-        return (now - last_follow_up).total_seconds() <= time_threshold_seconds
-    except Exception:
-        return False
     
 def increment_message_count(user_id):
     """
