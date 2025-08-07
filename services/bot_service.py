@@ -26,39 +26,51 @@ class UserAction:
 class BotService:
     """Core bot logic - platform independent"""
     
+    def handle_first_time(self, user_action: UserAction) -> BotResponse:
+        mark_user_as_seen(user_action.user_id, user_action.user_name)
+        text, kb = get_welcome_message(user_action.user_name)
+        return BotResponse(
+            text=text,
+            keyboard_markup=kb,
+            action_type="message"
+        )
+
+    def handle_second_interaction(self, user_action: UserAction) -> BotResponse:
+        increment_message_count(user_action.user_id)
+        text, kb = get_form_message(user_action.user_name)
+        return BotResponse(
+            text=text,
+            keyboard_markup=kb,
+            action_type="message"
+        )
+
+    def handle_follow_up(self, user_action: UserAction) -> BotResponse:
+        increment_message_count(user_action.user_id)
+        text, kb = get_after_interaction_message(user_action.user_name)
+        return BotResponse(
+            text=text,
+            keyboard_markup=kb,
+            action_type="message"
+        )
+
+    def handle_completed(self, user_action: UserAction) -> BotResponse:
+        return BotResponse(
+            text=THANK_YOU,
+            action_type="message"
+        )
+
     def handle_user_stage(self, user_action: UserAction) -> BotResponse:
         """Handle user interaction based on their stage"""
         stage = get_user_stage(user_action.user_id)
 
         if stage == 'first_time':
-            mark_user_as_seen(user_action.user_id, user_action.user_name)
-            text, kb = get_welcome_message(user_action.user_name)
-            return BotResponse(
-                text=text,
-                keyboard_markup=kb,
-                action_type="message"
-            )
+            return self.handle_first_time(user_action)
         elif stage == 'second_interaction':
-            increment_message_count(user_action.user_id)
-            text, kb = get_form_message(user_action.user_name)
-            return BotResponse(
-                text=text,
-                keyboard_markup=kb,
-                action_type="message"
-            )
+            return self.handle_second_interaction(user_action)
         elif stage == 'follow_up':
-            increment_message_count(user_action.user_id)
-            text, kb = get_after_interaction_message(user_action.user_name)
-            return BotResponse(
-                text=text,
-                keyboard_markup=kb,
-                action_type="message"
-            )
+            return self.handle_follow_up(user_action)
         else:  # completed
-            return BotResponse(
-                text=THANK_YOU,
-                action_type="message"
-            )
+            return self.handle_completed(user_action)
 
     def handle_start_command(self, user_action: UserAction) -> BotResponse:
         """Handle /start command or initial user interaction"""
